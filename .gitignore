@@ -1,5 +1,50 @@
-build
-vendor
-.DS_Store
+# Laravel
+/vendor
+/node_modules
+/public/storage
+/storage/*.key
+.env
+.env.*.backup
+.phpunit.result.cache
+Homestead.yaml
+Homestead.json
+/.vagrant
+/storage/logs/*.log
+/storage/framework/cache/data/*
+/storage/framework/sessions/*
+/storage/framework/testing/*
+/storage/framework/views/*.php
+/public/hot
+/public/storage
+/storage/debugbar
+npm-debug.log
+yarn-error.log
+
+# Composer
 composer.lock
-.idea
+
+# IDEs
+.idea/
+*.sublime-project
+*.sublime-workspace
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# PHPStorm specific
+/.phpstorm.meta.php
+
+# phpDocumentor output
+/output/
+
+# Coverage/Test
+coverage/
+clover.xml
+.junit.xml
+build/
+teamcity.txt
+.env.testing
+.phpunit.cache
+.phpunit.result.cache
