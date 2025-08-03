@@ -21,7 +21,7 @@ Fixes #<!-- issue number -->
 - [x] Applied PSR-4 autoloading structure
 - [x] Added docblocks for IDE
 - [x] Improved test folder and structure
-
+- [x] Configurable retry logic to `PaystackClient` via `retry_attempts` and `retry_delay` in `config/paystack.php`.
 ---
 
 ## 💡 Motivation

@@ -35,6 +35,12 @@ return [
      */
     'merchantEmail' => env('MERCHANT_EMAIL'),
 
+    // Maximum retry attempts for HTTP client (default: 3)
+    'retry_attempts' => env('PAYSTACK_RETRY_ATTEMPTS', 3),
+
+    // Delay (ms) between retry attempts (default: 150)
+    'retry_delay' => env('PAYSTACK_RETRY_DELAY', 150),
+
     /*
     |--------------------------------------------------------------------------
     | Enable Package Routes - Feature

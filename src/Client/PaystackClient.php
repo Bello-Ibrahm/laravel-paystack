@@ -36,7 +36,10 @@ class PaystackClient
     */
     protected function client(): \Illuminate\Http\Client\PendingRequest
     {
-        return Http::retry(3, 150)
+        return Http::retry(
+            config('paystack.retry_attempts', 3),
+            config('paystack.retry_delay', 150)
+        )
             ->withHeaders([
                 'Authorization' => 'Bearer ' . $this->secretKey,
                 'Accept'        => 'application/json',

@@ -9,28 +9,37 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com) and thi
 ## [Unreleased]
 
 ### Added
-- Created `PaystackClient` class to abstract Guzzle HTTP requests.
-- Introduced service classes: `TransactionService`, `CustomerService`, `PlanService`, etc., each handling a specific Paystack domain.
-- Added unit test, and integration test for `TransactionService` using real API keys (with backup mocking planned).
-- Improved exception handling in Paystack services
-- Created `.phpunit.result.cache` for PHPUnit test caching.
-- Added docblocks to service classes and methods for improved IDE support and maintainability.
-- Added `setup.sh` to automate initial project setup
-
+- Introduced `PaystackClient` class to abstract Guzzle HTTP requests.
+- Configurable retry logic to `PaystackClient` via `retry_attempts` and `retry_delay` in `config/paystack.php`.
+- Added service classes for clear separation of concerns:
+  - `TransactionService`
+  - `CustomerService`
+  - `PlanService`
+  - `SubscriptionService`
+  - `PageService`
+  - `SubAccountService`
+  - `BankService`
+- Implemented `TransRef` helper for generating transaction references (`Paystack::transRef()`).
+- Wrote unit and integration tests for services using PHPUnit.
+- Added `setup.sh` for bootstrapping the package setup.
+- Added docblocks for all service classes and methods to improve developer experience.
 
 ### Changed
-- Refactored `Paystack.php` to delegate to service classes, following the Single Responsibility Principle (SRP).
-- Composer autoload structure improved for better PSR-4 compliance.
-- Improved test folder and autoload mappings.
-- Improved `CHANGELOG.md` for release history tracking.
-- Improved folder structuring eg `resources/config/paystack.php` to `config/paystack.php`
-
-### Fixed
-- Removed deprecated test code
+- Refactored core `Paystack.php` class to follow SRP and delegate responsibilities to dedicated service classes.
+- Centralized API logic through `PaystackClient` to improve testability and HTTP abstraction.
+- Improved autoload structure for PSR-4 compliance.
+- Restructured folders (`resources/config/paystack.php` → `config/paystack.php`).
+- Enhanced PHPUnit configuration and improved test folder layout.
+- Enhanced exception handling and removed reliance on global helpers like `request()` or `config()` in services.
 
 ### Removed
-- Removed unused service logic from the core `Paystack` class.
-- Cleaned up old/unused config entries.
+- Deprecated or unused logic from the core `Paystack` class.
+- Obsolete configuration entries.
+- Old and redundant test code.
+
+### Fixed
+- Resolved PSR-4 autoload warnings for tests.
+- Fixed XML validation issue in `phpunit.xml` caused by invalid `<log>` structure.
 
 ---
 
