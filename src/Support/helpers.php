@@ -8,7 +8,7 @@
  * Example:
  * ```php
  * $paystack = paystack();
- * $response = $paystack->getAuthorizationUrl();
+ * $response = $paystack->transaction()->initialize($payload);
  * ```
  *
  * @return \Unicodeveloper\Paystack\Paystack
