@@ -15,6 +15,7 @@
 - Auto-generated transaction references with `transRef()`
 - Built-in error handling and retry logic
 - PSR-4 compliant and fully testable (unit & integration)
+- Built-in retry logic (configurable with PAYSTACK_RETRY_ATTEMPTS and PAYSTACK_RETRY_DELAY)
 
 ---
 
@@ -41,6 +42,10 @@ PAYSTACK_SECRET_KEY=sk_test_xxxxx
 PAYSTACK_PAYMENT_URL=https://api.paystack.co
 PAYSTACK_CALLBACK_URL=https://example.com/payment/callback
 MERCHANT_EMAIL='example@example.com'
+
+# Optional retry settings
+PAYSTACK_RETRY_ATTEMPTS=3
+PAYSTACK_RETRY_DELAY=150
 ```
 ---
 
