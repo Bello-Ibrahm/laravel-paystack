@@ -35,7 +35,7 @@ class SubAccountService
      * Wrap API calls with exception handling.
      *
      * @internal This method is not part of the public API and may change without notice.
-     * 
+     *
      * @param callable $callback
      * @return array {
      *     @type bool   $status  Whether the request was successful.
@@ -74,7 +74,7 @@ class SubAccountService
     */
     public function create(array $data): array
     {
-        return $this->handle(fn() => $this->client->post('subaccount', $data)->json());
+        return $this->handle(fn () => $this->client->post('subaccount', $data)->json());
     }
 
     /**
@@ -85,7 +85,7 @@ class SubAccountService
     */
     public function fetch(string $subaccountCode): array
     {
-        return $this->handle(fn() => $this->client->get("subaccount/{$subaccountCode}")->json());
+        return $this->handle(fn () => $this->client->get("subaccount/{$subaccountCode}")->json());
     }
 
     /**
@@ -95,6 +95,6 @@ class SubAccountService
     */
     public function list(): array
     {
-        return $this->handle(fn() => $this->client->get("subaccount")->json());
+        return $this->handle(fn () => $this->client->get("subaccount")->json());
     }
 }

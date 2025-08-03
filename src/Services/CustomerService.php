@@ -35,7 +35,7 @@ class CustomerService
      * Wrap API calls with error handling.
      *
      * @internal This method is not part of the public API and may change without notice.
-     * 
+     *
      * @param callable $callback
      * @return array {
      *     @type bool   $status  Whether the request was successful.
@@ -74,7 +74,7 @@ class CustomerService
     */
     public function create(array $data): array
     {
-        return $this->handle(fn() => $this->client->post('customer', $data)->json());
+        return $this->handle(fn () => $this->client->post('customer', $data)->json());
     }
 
     /**
@@ -85,7 +85,7 @@ class CustomerService
     */
     public function fetch(string $customerCode): array
     {
-        return $this->handle(fn() => $this->client->get("customer/{$customerCode}")->json());
+        return $this->handle(fn () => $this->client->get("customer/{$customerCode}")->json());
     }
 
     /**
@@ -97,6 +97,6 @@ class CustomerService
     */
     public function list(int $perPage = 50, int $page = 1): array
     {
-        return $this->handle(fn() => $this->client->get("customer?perPage={$perPage}&page={$page}")->json());
+        return $this->handle(fn () => $this->client->get("customer?perPage={$perPage}&page={$page}")->json());
     }
 }

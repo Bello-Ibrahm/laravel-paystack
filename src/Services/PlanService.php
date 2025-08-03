@@ -35,7 +35,7 @@ class PlanService
      * Wrap API calls with error handling.
      *
      * @internal This method is not part of the public API and may change without notice.
-     * 
+     *
      * @param callable $callback
      * @return array {
      *     @type bool   $status  Whether the request was successful.
@@ -73,7 +73,7 @@ class PlanService
     */
     public function create(array $data): array
     {
-        return $this->handle(fn() => $this->client->post('plan', $data)->json());
+        return $this->handle(fn () => $this->client->post('plan', $data)->json());
     }
 
     /**
@@ -84,7 +84,7 @@ class PlanService
     */
     public function fetch(string $planCode): array
     {
-        return $this->handle(fn() => $this->client->get("plan/{$planCode}")->json());
+        return $this->handle(fn () => $this->client->get("plan/{$planCode}")->json());
     }
 
     /**
@@ -96,6 +96,6 @@ class PlanService
     */
     public function list(int $perPage = 50, int $page = 1): array
     {
-        return $this->handle(fn() => $this->client->get("plan?perPage={$perPage}&page={$page}")->json());
+        return $this->handle(fn () => $this->client->get("plan?perPage={$perPage}&page={$page}")->json());
     }
 }

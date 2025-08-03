@@ -49,13 +49,13 @@ class PaystackServiceProvider extends ServiceProvider
             return new PaystackClient(config('paystack.secretKey'));
         });
 
-        $this->app->singleton(TransactionService::class, fn($app) => new TransactionService($app->make(PaystackClient::class)));
-        $this->app->singleton(CustomerService::class, fn($app) => new CustomerService($app->make(PaystackClient::class)));
-        $this->app->singleton(PlanService::class, fn($app) => new PlanService($app->make(PaystackClient::class)));
-        $this->app->singleton(SubscriptionService::class, fn($app) => new SubscriptionService($app->make(PaystackClient::class)));
-        $this->app->singleton(PageService::class, fn($app) => new PageService($app->make(PaystackClient::class)));
-        $this->app->singleton(SubAccountService::class, fn($app) => new SubAccountService($app->make(PaystackClient::class)));
-        $this->app->singleton(BankService::class, fn($app) => new BankService($app->make(PaystackClient::class)));
+        $this->app->singleton(TransactionService::class, fn ($app) => new TransactionService($app->make(PaystackClient::class)));
+        $this->app->singleton(CustomerService::class, fn ($app) => new CustomerService($app->make(PaystackClient::class)));
+        $this->app->singleton(PlanService::class, fn ($app) => new PlanService($app->make(PaystackClient::class)));
+        $this->app->singleton(SubscriptionService::class, fn ($app) => new SubscriptionService($app->make(PaystackClient::class)));
+        $this->app->singleton(PageService::class, fn ($app) => new PageService($app->make(PaystackClient::class)));
+        $this->app->singleton(SubAccountService::class, fn ($app) => new SubAccountService($app->make(PaystackClient::class)));
+        $this->app->singleton(BankService::class, fn ($app) => new BankService($app->make(PaystackClient::class)));
 
         $this->app->singleton(Paystack::class, function ($app) {
             return new Paystack($app->make(PaystackClient::class));

@@ -35,7 +35,7 @@ class PageService
      * Wrap API calls with error handling.
      *
      * @internal This method is not part of the public API and may change without notice.
-     * 
+     *
      * @param callable $callback
      * @return array {
      *     @type bool   $status  Whether the request was successful.
@@ -73,7 +73,7 @@ class PageService
     */
     public function create(array $data): array
     {
-        return $this->handle(fn() => $this->client->post('page', $data)->json());
+        return $this->handle(fn () => $this->client->post('page', $data)->json());
     }
 
     /**
@@ -84,7 +84,7 @@ class PageService
     */
     public function fetch(string $pageId): array
     {
-        return $this->handle(fn() => $this->client->get("page/{$pageId}")->json());
+        return $this->handle(fn () => $this->client->get("page/{$pageId}")->json());
     }
 
     /**
@@ -94,6 +94,6 @@ class PageService
     */
     public function list(): array
     {
-        return $this->handle(fn() => $this->client->get("page")->json());
+        return $this->handle(fn () => $this->client->get("page")->json());
     }
 }

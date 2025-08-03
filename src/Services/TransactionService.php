@@ -36,9 +36,9 @@ class TransactionService
      * Handle exceptions gracefully and format the result.
      *
      * @internal This method is not part of the public API and may change without notice.
-     * 
+     *
      * @internal This method is not part of the public API and may change without notice.
-     * 
+     *
      * @param callable $callback
      * @return array {
      *     @type bool   $status  Indicates success or failure.
@@ -80,7 +80,7 @@ class TransactionService
     */
     public function initialize(array $payload): array
     {
-        return $this->handle(fn() => $this->client->post('transaction/initialize', $payload)->json());
+        return $this->handle(fn () => $this->client->post('transaction/initialize', $payload)->json());
     }
 
     /**
@@ -91,7 +91,7 @@ class TransactionService
     */
     public function verify(string $reference): array
     {
-        return $this->handle(fn() => $this->client->get("transaction/verify/{$reference}")->json());
+        return $this->handle(fn () => $this->client->get("transaction/verify/{$reference}")->json());
     }
 
     /**
@@ -103,7 +103,7 @@ class TransactionService
     */
     public function list(int $perPage = 50, int $page = 1): array
     {
-        return $this->handle(fn() => $this->client->get("transaction?perPage={$perPage}&page={$page}")->json());
+        return $this->handle(fn () => $this->client->get("transaction?perPage={$perPage}&page={$page}")->json());
     }
 
     /**
@@ -114,6 +114,6 @@ class TransactionService
     */
     public function fetch(int|string $id): array
     {
-        return $this->handle(fn() => $this->client->get("transaction/{$id}")->json());
+        return $this->handle(fn () => $this->client->get("transaction/{$id}")->json());
     }
 }

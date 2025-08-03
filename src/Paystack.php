@@ -121,4 +121,3 @@ class Paystack
         return TransRef::generate();
     }
 }
-    

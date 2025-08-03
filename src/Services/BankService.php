@@ -20,7 +20,7 @@ class BankService
      * @var \Unicodeveloper\Paystack\Client\PaystackClient
     */
     protected PaystackClient $client;
-    
+
     /**
      * BankService constructor.
      *
@@ -35,7 +35,7 @@ class BankService
      * Wrap API calls with error handling.
      *
      * @internal This method is not part of the public API and may change without notice.
-     * 
+     *
      * @param callable $callback
      * @return array {
      *     @type bool   $status  Whether the request was successful.
@@ -63,7 +63,7 @@ class BankService
     */
     public function list(): array
     {
-        return $this->handle(fn() => $this->client->get('bank')->json());
+        return $this->handle(fn () => $this->client->get('bank')->json());
     }
 
     /**
@@ -82,6 +82,6 @@ class BankService
     */
     public function resolveAccount(array $data): array
     {
-        return $this->handle(fn() => $this->client->get('bank/resolve', $data)->json());
+        return $this->handle(fn () => $this->client->get('bank/resolve', $data)->json());
     }
 }

@@ -25,7 +25,7 @@ class PaystackClient
     public function __construct(?string $secretKey = '', ?string $baseUrl = '')
     {
         $this->baseUrl = $baseUrl ?: config('paystack.paymentUrl', 'https://api.paystack.co');
-        $this->secretKey = $secretKey ?: config('paystack.secretKey');        
+        $this->secretKey = $secretKey ?: config('paystack.secretKey');
     }
 
     /**
@@ -129,13 +129,13 @@ class PaystackClient
         return $this->request('put', $endpoint, $data);
     }
 
-     /**
-     * Send a DELETE request to a Paystack API endpoint.
-     *
-     * @param string $endpoint
-     * @return Response
-     *
-     * @throws PaystackRequestException
+    /**
+    * Send a DELETE request to a Paystack API endpoint.
+    *
+    * @param string $endpoint
+    * @return Response
+    *
+    * @throws PaystackRequestException
     */
     public function delete(string $endpoint): Response
     {

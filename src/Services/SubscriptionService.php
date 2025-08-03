@@ -35,7 +35,7 @@ class SubscriptionService
      * Wrap API calls with exception handling.
      *
      * @internal This method is not part of the public API and may change without notice.
-     * 
+     *
      * @param callable $callback
      * @return array {
      *     @type bool   $status  Whether the request was successful.
@@ -73,7 +73,7 @@ class SubscriptionService
     */
     public function create(array $payload): array
     {
-        return $this->handle(fn() => $this->client->post('subscription', $payload)->json());
+        return $this->handle(fn () => $this->client->post('subscription', $payload)->json());
     }
 
     /**
@@ -92,7 +92,7 @@ class SubscriptionService
     */
     public function disable(array $payload): array
     {
-        return $this->handle(fn() => $this->client->post('subscription/disable', $payload)->json());
+        return $this->handle(fn () => $this->client->post('subscription/disable', $payload)->json());
     }
 
     /**
@@ -111,7 +111,7 @@ class SubscriptionService
     */
     public function enable(array $payload): array
     {
-        return $this->handle(fn() => $this->client->post('subscription/enable', $payload)->json());
+        return $this->handle(fn () => $this->client->post('subscription/enable', $payload)->json());
     }
 
     /**
@@ -122,7 +122,7 @@ class SubscriptionService
     */
     public function fetch(string $subscriptionCode): array
     {
-        return $this->handle(fn() => $this->client->get("subscription/{$subscriptionCode}")->json());
+        return $this->handle(fn () => $this->client->get("subscription/{$subscriptionCode}")->json());
     }
 
     /**
@@ -143,6 +143,6 @@ class SubscriptionService
     */
     public function list(array $params = []): array
     {
-        return $this->handle(fn() => $this->client->get('subscription', $params)->json());
+        return $this->handle(fn () => $this->client->get('subscription', $params)->json());
     }
 }
