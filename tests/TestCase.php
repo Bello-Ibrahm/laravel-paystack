@@ -3,7 +3,6 @@
 namespace Unicodeveloper\Paystack\Test;
 
 use Dotenv\Dotenv;
-use GuzzleHttp\Client;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 use Unicodeveloper\Paystack\Facades\Paystack;
 use Unicodeveloper\Paystack\PaystackServiceProvider;

@@ -48,3 +48,5 @@ teamcity.txt
 .env.testing
 .phpunit.cache
 .phpunit.result.cache
+.phpunit.result.cache
+phpunit.xml.dist.bak

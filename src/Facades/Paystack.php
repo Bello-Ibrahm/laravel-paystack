@@ -1,25 +1,26 @@
 <?php
 
-/*
- * This file is part of the Laravel Paystack package.
- *
- * (c) Prosper Otemuyiwa <prosperotemuyiwa@gmail.com>
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- */
-
 namespace Unicodeveloper\Paystack\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
+/**
+ * @see \Unicodeveloper\Paystack\Paystack
+ *
+ * @method static \Unicodeveloper\Paystack\Services\TransactionService transaction()
+ * @method static \Unicodeveloper\Paystack\Services\CustomerService customer()
+ * @method static \Unicodeveloper\Paystack\Services\SubscriptionService subscription()
+ * @method static \Unicodeveloper\Paystack\Services\PlanService plan()
+ * @method static \Unicodeveloper\Paystack\Services\TransferService transfer()
+ * @method static \Unicodeveloper\Paystack\Services\TransferRecipientService transferRecipient()
+ * @method static \Unicodeveloper\Paystack\Services\PaymentPageService paymentPage()
+ */
 class Paystack extends Facade
 {
     /**
-     * Get the registered name of the component
-     * @return string
+     * Get the registered name of the component.
      */
-    protected static function getFacadeAccessor()
+    protected static function getFacadeAccessor(): string
     {
         return 'laravel-paystack';
     }
