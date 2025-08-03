@@ -1,9 +1,20 @@
 <?php
 
-if (! function_exists("paystack"))
-{
+/**
+ * Get the Paystack service instance.
+ *
+ * This helper provides easy access to the Paystack package's main interface.
+ *
+ * Example:
+ * ```php
+ * $paystack = paystack();
+ * $response = $paystack->getAuthorizationUrl();
+ * ```
+ *
+ * @return \Unicodeveloper\Paystack\Paystack
+*/
+if (! function_exists("paystack")) {
     function paystack() {
-
         return app()->make('laravel-paystack');
     }
 }

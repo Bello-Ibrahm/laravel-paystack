@@ -25,6 +25,7 @@ use Unicodeveloper\Paystack\Support\TransRef;
  * Paystack Service Container
  *
  * Provides access to Paystack services like Transaction, Customer, Plan, etc.
+ * @package Unicodeveloper\Paystack
 */
 class Paystack
 {

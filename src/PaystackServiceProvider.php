@@ -29,8 +29,8 @@ class PaystackServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->bootConfig();
-        $this->bootViews();
-        $this->bootRoutes();
+        // $this->bootViews(); // TODO
+        // $this->bootRoutes(); // TODO
     }
 
     /**

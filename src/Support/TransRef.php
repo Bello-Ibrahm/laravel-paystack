@@ -2,11 +2,24 @@
 
 namespace Unicodeveloper\Paystack\Support;
 
+/**
+ * Class TransRef
+ *
+ * Generates a unique transaction reference string.
+ *
+ * @package Unicodeveloper\Paystack\Support
+*/
 class TransRef
 {
+    /**
+     * Generate a unique transaction reference.
+     *
+     * Format: TXN_<unique_id>_<random_hex>
+     *
+     * @return string
+    */
     public static function generate(): string
     {
-        // return 'TXN_' . strtoupper(uniqid(bin2hex(random_bytes(4)), true));
         return 'TXN_' . uniqid() . '_' . bin2hex(random_bytes(4));
     }
 }
