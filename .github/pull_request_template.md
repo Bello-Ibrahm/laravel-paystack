@@ -1,4 +1,4 @@
-# 🚀 Pull Request
+# Pull Request
 
 ## Summary
 
@@ -7,14 +7,14 @@ Refactor to enforce Single Responsibility Principle (SRP) in `PaystackClient`. E
 
 ---
 
-## 🔍 Related Issues
+## Related Issues
 
 <!-- e.g., Fixes #12, Closes #45 -->
 Fixes #<!-- issue number -->
 
 ---
 
-## ✅ Changes Made
+## Changes Made
 
 - [x] Extracted HTTP logic into `PaystackClient`
 - [x] Created `TransactionService`, `CustomerService`, etc.
@@ -24,14 +24,14 @@ Fixes #<!-- issue number -->
 - [x] Configurable retry logic to `PaystackClient` via `retry_attempts` and `retry_delay` in `config/paystack.php`.
 ---
 
-## 💡 Motivation
+## Motivation
 
 <!-- Why is this change needed? -->
 Improving maintainability, testability, and adherence to clean architecture (SRP/SOLID principles).
 
 ---
 
-## 🧪 Tests
+## Tests
 
 <!-- What did you test or automate? -->
 - [x] Unit tests for all new service classes
@@ -40,7 +40,7 @@ Improving maintainability, testability, and adherence to clean architecture (SRP
 
 ---
 
-## 📋 Checklist
+## Checklist
 
 - [x] Code builds without errors
 - [x] All PHPUnit tests pass
@@ -51,13 +51,13 @@ Improving maintainability, testability, and adherence to clean architecture (SRP
 
 ---
 
-## 📸 Screenshots (UI-related changes only)
+## Screenshots (UI-related changes only)
 
 <!-- Add before/after screenshots if applicable -->
 
 ---
 
-## ❗ Breaking Changes?
+## Breaking Changes?
 
 - [ ] Yes
 - [x] No
@@ -66,7 +66,7 @@ Improving maintainability, testability, and adherence to clean architecture (SRP
 
 ---
 
-## 💬 Additional Notes
+## Additional Notes
 
 <!-- Anything else the reviewers should know? -->
 
