@@ -10,7 +10,7 @@ use Unicodeveloper\Paystack\Test\TestCase;
 
 class SubscriptionServiceTest extends TestCase
 {
-    public function testCreateSubscription()
+    public function testCreateSubscription(): void
     {
         Http::fake([
             'https://api.paystack.co/subscription' => Http::response(['status' => true, 'data' => ['email' => 'user@example.com']])
@@ -26,7 +26,7 @@ class SubscriptionServiceTest extends TestCase
         $this->assertEquals('user@example.com', $response['data']['email']);
     }
 
-    public function testDisableSubscription()
+    public function testDisableSubscription(): void
     {
         Http::fake([
             'https://api.paystack.co/subscription/disable' => Http::response(['status' => true])
@@ -37,7 +37,7 @@ class SubscriptionServiceTest extends TestCase
         $this->assertTrue($response['status']);
     }
 
-    public function testEnableSubscription()
+    public function testEnableSubscription(): void
     {
         Http::fake([
             'https://api.paystack.co/subscription/enable' => Http::response(['status' => true])
@@ -50,7 +50,7 @@ class SubscriptionServiceTest extends TestCase
         $this->assertTrue($response['status']);
     }
 
-    public function testFetchSubscription()
+    public function testFetchSubscription(): void
     {
         $code = 'SUB123';
         Http::fake([

@@ -10,7 +10,7 @@ use Unicodeveloper\Paystack\Client\PaystackClient;
 class CustomerServiceTest extends TestCase
 {
 
-    public function testCreateCustomer()
+    public function testCreateCustomer(): void
     {
         Http::fake([
             'https://api.paystack.co/customer' => Http::response(['status' => true, 'data' => ['email' => 'test@example.com']])
@@ -24,7 +24,7 @@ class CustomerServiceTest extends TestCase
         $this->assertEquals('test@example.com', $response['data']['email']);
     }
 
-    public function testListCustomers()
+    public function testListCustomers(): void
     {
         Http::fake([
             'https://api.paystack.co/customer*' => Http::response(['status' => true, 'data' => [['email' => 'test@example.com']]])
@@ -38,9 +38,9 @@ class CustomerServiceTest extends TestCase
         $this->assertIsArray($response['data']);
     }
 
-    public function testFetchCustomer()
+    public function testFetchCustomer(): void
     {
-        $id = 12345;
+        $id = 'ABC12345';
         Http::fake([
             "https://api.paystack.co/customer/{$id}" => Http::response(['status' => true, 'data' => ['id' => $id]])
         ]);

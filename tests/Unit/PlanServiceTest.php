@@ -9,7 +9,7 @@ use Unicodeveloper\Paystack\Test\TestCase;
 
 class PlanServiceTest extends TestCase
 {
-    public function testCreatePlan()
+    public function testCreatePlan(): void
     {
         Http::fake([
             'https://api.paystack.co/plan' => Http::response(['status' => true, 'data' => ['name' => 'Basic Plan']])
@@ -23,7 +23,7 @@ class PlanServiceTest extends TestCase
         $this->assertEquals('Basic Plan', $response['data']['name']);
     }
 
-    public function testListPlans()
+    public function testListPlans(): void
     {
         Http::fake([
             'https://api.paystack.co/plan*' => Http::response(['status' => true, 'data' => [['name' => 'Basic Plan']]])
@@ -37,9 +37,9 @@ class PlanServiceTest extends TestCase
         $this->assertIsArray($response['data']);
     }
 
-    public function testFetchPlan()
+    public function testFetchPlan(): void
     {
-        $id = 67890;
+        $id = 'ABC67890';
         Http::fake([
             "https://api.paystack.co/plan/{$id}" => Http::response(['status' => true, 'data' => ['id' => $id]])
         ]);

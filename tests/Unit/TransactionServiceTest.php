@@ -11,7 +11,7 @@ use Unicodeveloper\Paystack\Facades\Paystack;
 
 class TransactionServiceTest extends TestCase
 {
-    public function testInitializeTransactionUsingFacade()
+    public function testInitializeTransactionUsingFacade(): void
     {
         $mockReference = Str::uuid()->toString();
 
@@ -35,7 +35,7 @@ class TransactionServiceTest extends TestCase
         $this->assertEquals('https://paystack.com/pay/test', $response['data']['authorization_url']);
     }
 
-    public function testVerifyTransaction()
+    public function testVerifyTransaction(): void
     {
         $reference = 'txn_ref_123';
 
@@ -54,7 +54,7 @@ class TransactionServiceTest extends TestCase
         $this->assertEquals('Verification successful', $response['message']);
     }
 
-    public function testFetchTransaction()
+    public function testFetchTransaction(): void
     {
         $id = 7890;
 
@@ -75,12 +75,8 @@ class TransactionServiceTest extends TestCase
         $this->assertEquals($id, $response['data']['id']);
     }
 
-    public function testListPaginatedTransactions()
-    {
-        $perPage = 3;
-        $page = 1;
-
-        
+    public function testListPaginatedTransactions(): void
+    {        
         Http::fake([
             "https://api.paystack.co/transaction*" => Http::response([
                 'status' => true,
@@ -94,7 +90,7 @@ class TransactionServiceTest extends TestCase
 
         $client = new PaystackClient();
         $service = new TransactionService($client);
-        $response = $service->list($perPage, $page);
+        $response = $service->list(['perPage' => 10, 'page' => 1]);
 
         $this->assertTrue($response['status']);
         $this->assertIsArray($response['data']);
@@ -103,14 +99,10 @@ class TransactionServiceTest extends TestCase
         $this->assertEquals(25000, $response['data'][1]['amount']);
     }
 
-    public function testGenerateTransactionReference()
+    public function testGenerateTransactionReference(): void
     {
-        $ref = Paystack::transRef();
-
-        // print_r($ref);
-        $this->assertIsString($ref);
-        $this->assertStringStartsWith('TXN_', $ref);
-        $this->assertGreaterThan(10, strlen($ref));
+        $this->assertIsString(Paystack::transRef());
+        $this->assertStringStartsWith('TXN_', Paystack::transRef());
+        $this->assertGreaterThan(10, strlen(Paystack::transRef()));
     }
-
 }

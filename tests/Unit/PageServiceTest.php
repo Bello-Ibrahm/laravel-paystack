@@ -9,7 +9,7 @@ use Unicodeveloper\Paystack\Services\PageService;
 
 class PageServiceTest extends TestCase
 {
-    public function testCreatePaymentPage()
+    public function testCreatePaymentPage(): void
     {
         $payload = [
             'name' => 'Test Page',
@@ -40,7 +40,7 @@ class PageServiceTest extends TestCase
         $this->assertEquals('Page created successfully', $response['message']);
     }
 
-    public function testFetchPaymentPage()
+    public function testFetchPaymentPage(): void
     {
         $pageId = 'abc123';
 
@@ -63,7 +63,7 @@ class PageServiceTest extends TestCase
         $this->assertEquals($pageId, $response['data']['id']);
     }
     
-    public function testListPaymentPages()
+    public function testListPaymentPages(): void
     {
         Http::fake([
             'https://api.paystack.co/page*' => Http::response([
