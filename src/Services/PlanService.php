@@ -1,5 +1,7 @@
 <?php
 
+// Paystack specific Documentation page website: https://paystack.com/docs/api/plan/
+
 namespace Unicodeveloper\Paystack\Services;
 
 use Unicodeveloper\Paystack\Client\PaystackClient;
@@ -37,11 +39,7 @@ class PlanService
      * @internal This method is not part of the public API and may change without notice.
      *
      * @param callable $callback
-     * @return array {
-     *     @type bool   $status  Whether the request was successful.
-     *     @type string $message Message or error information.
-     *     @type mixed  $data    The response data or null on failure.
-     * }
+     * @return array{status: bool, message: string, data: mixed}
     */
     protected function handle(callable $callback): array
     {
@@ -59,7 +57,7 @@ class PlanService
     /**
      * Create a new subscription plan on Paystack.
      *
-     * Example payload:
+     * Example:
      * ```php
      * [
      *     'name' => 'Monthly Gold Plan',
@@ -68,20 +66,20 @@ class PlanService
      * ]
      * ```
      *
-     * @param array $data The data required to create the plan.
-     * @return array The response from Paystack API.
-    */
-    public function create(array $data): array
+     * @param array<string, mixed> $payload The data required to create the plan.
+     * @return array<string, mixed>
+     */
+    public function create(array $payload = []): array
     {
-        return $this->handle(fn () => $this->client->post('plan', $data)->json());
+        return $this->handle(fn () => $this->client->post('plan', $payload)->json());
     }
 
     /**
      * Fetch a subscription plan by its code.
      *
      * @param string $planCode The plan code from Paystack.
-     * @return array The response from Paystack API.
-    */
+     * @return array<string, mixed>
+     */
     public function fetch(string $planCode): array
     {
         return $this->handle(fn () => $this->client->get("plan/{$planCode}")->json());
@@ -90,12 +88,31 @@ class PlanService
     /**
      * List all subscription plans with pagination.
      *
-     * @param int $perPage Number of plans per page.
-     * @param int $page    The current page number.
-     * @return array The response from Paystack API.
-    */
-    public function list(int $perPage = 50, int $page = 1): array
+     * @param array<string, mixed> $params Optional Query parameters.
+     * @return array<string, mixed>
+     */
+    public function list(array $params = []): array
     {
-        return $this->handle(fn () => $this->client->get("plan?perPage={$perPage}&page={$page}")->json());
+        return $this->handle(fn () => $this->client->get("plan", $params)->json());
+    }
+
+    /**
+     * Update an existing plan.
+     *
+     * Example:
+     * ```php
+     * [
+     *     "name" => "Monthly retainer (renamed)"
+     *     'amount' => 10000
+     * ]
+     * ```
+     *
+     * @param string $id_or_code The ID/Plan code.
+     * @param array<string, mixed> $payload The fields to update.
+     * @return array<string, mixed>
+     */
+    public function update(string $id_or_code, array $payload = []): array
+    {
+        return $this->handle(fn () => $this->client->put("plan/{$id_or_code}", $payload)->json());
     }
 }

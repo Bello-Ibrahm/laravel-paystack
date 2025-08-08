@@ -1,5 +1,7 @@
 <?php
 
+// Paystack specific Documentation page website: https://paystack.com/docs/api/subscription/
+
 namespace Unicodeveloper\Paystack\Services;
 
 use Unicodeveloper\Paystack\Client\PaystackClient;
@@ -11,21 +13,21 @@ use Unicodeveloper\Paystack\Exceptions\PaystackRequestException;
  * Handles recurring billing via subscriptions on Paystack.
  *
  * @package Unicodeveloper\Paystack\Services
-*/
+ */
 class SubscriptionService
 {
     /**
      * The Paystack API client instance.
      *
      * @var \Unicodeveloper\Paystack\Client\PaystackClient
-    */
+     */
     protected PaystackClient $client;
 
     /**
      * SubscriptionService constructor.
      *
      * @param \Unicodeveloper\Paystack\Client\PaystackClient $client
-    */
+     */
     public function __construct(PaystackClient $client)
     {
         $this->client = $client;
@@ -37,12 +39,8 @@ class SubscriptionService
      * @internal This method is not part of the public API and may change without notice.
      *
      * @param callable $callback
-     * @return array {
-     *     @type bool   $status  Whether the request was successful.
-     *     @type string $message Error or success message.
-     *     @type mixed  $data    Response data or null if failed.
-     * }
-    */
+     * @return array{status: bool, message: string, data: mixed}
+     */
     protected function handle(callable $callback): array
     {
         try {
@@ -59,76 +57,26 @@ class SubscriptionService
     /**
      * Create a subscription between a customer and a plan.
      *
-     * Example payload:
+     * Example:
      * ```php
      * [
      *     'customer' => 'CUS_xxxxxxx',
-     *     'plan' => 'PLN_xxxxxxx',
-     *     'authorization' => 'AUTH_xxxxxxx' // Optional if email token is used
+     *     'plan' => 'PLN_xxxxxxx'
      * ]
      * ```
      *
-     * @param array $payload Subscription creation data.
-     * @return array The response from Paystack API.
-    */
-    public function create(array $payload): array
+     * @param array<string, mixed> $payload Subscription creation data.
+     * @return array<string, mixed>
+     */
+    public function create(array $payload = []): array
     {
         return $this->handle(fn () => $this->client->post('subscription', $payload)->json());
     }
 
     /**
-     * Disable a subscription by customer code or email token.
-     *
-     * Example payload:
-     * ```php
-     * [
-     *     'code' => 'SUB_xxxxxxx',
-     *     'token' => 'email_token_xxxxxxx'
-     * ]
-     * ```
-     *
-     * @param array $payload Disable payload.
-     * @return array The response from Paystack API.
-    */
-    public function disable(array $payload): array
-    {
-        return $this->handle(fn () => $this->client->post('subscription/disable', $payload)->json());
-    }
-
-    /**
-     * Enable a subscription using code and token.
-     *
-     * Example payload:
-     * ```php
-     * [
-     *     'code' => 'SUB_xxxxxxx',
-     *     'token' => 'email_token_xxxxxxx'
-     * ]
-     * ```
-     *
-     * @param array $payload Enable payload.
-     * @return array The response from Paystack API.
-    */
-    public function enable(array $payload): array
-    {
-        return $this->handle(fn () => $this->client->post('subscription/enable', $payload)->json());
-    }
-
-    /**
-     * Fetch details of a specific subscription by code.
-     *
-     * @param string $subscriptionCode The subscription code.
-     * @return array The response from Paystack API.
-    */
-    public function fetch(string $subscriptionCode): array
-    {
-        return $this->handle(fn () => $this->client->get("subscription/{$subscriptionCode}")->json());
-    }
-
-    /**
      * List all subscriptions or filter them.
      *
-     * Example filters:
+     * Example:
      * ```php
      * [
      *     'customer' => 'CUS_xxxxxxx',
@@ -138,11 +86,83 @@ class SubscriptionService
      * ]
      * ```
      *
-     * @param array $params Optional query parameters.
-     * @return array The response from Paystack API.
-    */
+     * @param array<string, mixed> $params Optional query parameters.
+     * @return array<string, mixed>
+     */
     public function list(array $params = []): array
     {
         return $this->handle(fn () => $this->client->get('subscription', $params)->json());
+    }
+
+    /**
+     * Fetch details of a specific subscription by code.
+     *
+     * @param string $subscriptionCode The subscription code.
+     * @return array<string, mixed>
+     */
+    public function fetch(string $subscriptionCode): array
+    {
+        return $this->handle(fn () => $this->client->get("subscription/{$subscriptionCode}")->json());
+    }
+
+    /**
+     * Enable a subscription using code and token.
+     *
+     * Example:
+     * ```php
+     * [
+     *     'code' => 'SUB_xxxxxxx',
+     *     'token' => 'email_token_xxxxxxx'
+     * ]
+     * ```
+     *
+     * @param array<string, mixed> $payload Enable payload.
+     * @return array<string, mixed>
+     */
+    public function enable(array $payload = []): array
+    {
+        return $this->handle(fn () => $this->client->post('subscription/enable', $payload)->json());
+    }
+
+    /**
+     * Disable a subscription by customer code or email token.
+     *
+     * Example:
+     * ```php
+     * [
+     *     'code' => 'SUB_xxxxxxx',
+     *     'token' => 'email_token_xxxxxxx'
+     * ]
+     * ```
+     *
+     * @param array<string, mixed> $payload Disable payload.
+     * @return array<string, mixed>
+     */
+    public function disable(array $payload = []): array
+    {
+        return $this->handle(fn () => $this->client->post('subscription/disable', $payload)->json());
+    }
+
+    /**
+     * Generate a link for updating the card on a subscription.
+     *
+     * @param string $subscriptionCode The subscription code.
+     * @return array<string, mixed>
+     */
+    public function generateUpdateSubscriptionLink(string $subscriptionCode): array
+    {
+        return $this->handle(fn () => $this->client->get("subscription/{$subscriptionCode}/manage/link")->json());
+    }
+
+    /**
+     * Email a customer a link for updating the card on their subscription
+     *
+     * @param string $subscriptionCode The subscription code.
+     * @param array<string, mixed> $payload Body parameters.
+     * @return array<string, mixed>
+     */
+    public function sendUpdateSubscriptionLink(string $subscriptionCode, array $payload = []): array
+    {
+        return $this->handle(fn () => $this->client->post("subscription/{$subscriptionCode}/manage/email", $payload)->json());
     }
 }

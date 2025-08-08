@@ -1,5 +1,8 @@
 <?php
 
+declare(strict_types=1);
+// Paystack specific Documentation page website: https://paystack.com/docs/api/miscellaneous/#bank / https://paystack.com/docs/api/verification/
+
 namespace Unicodeveloper\Paystack\Services;
 
 use Unicodeveloper\Paystack\Client\PaystackClient;
@@ -11,21 +14,21 @@ use Unicodeveloper\Paystack\Exceptions\PaystackRequestException;
  * Handles Paystack bank-related operations such as listing banks and resolving bank accounts.
  *
  * @package Unicodeveloper\Paystack\Services
-*/
+ */
 class BankService
 {
     /**
      * The Paystack API client instance.
      *
      * @var \Unicodeveloper\Paystack\Client\PaystackClient
-    */
+     */
     protected PaystackClient $client;
 
     /**
      * BankService constructor.
      *
      * @param \Unicodeveloper\Paystack\Client\PaystackClient $client
-    */
+     */
     public function __construct(PaystackClient $client)
     {
         $this->client = $client;
@@ -37,12 +40,8 @@ class BankService
      * @internal This method is not part of the public API and may change without notice.
      *
      * @param callable $callback
-     * @return array {
-     *     @type bool   $status  Whether the request was successful.
-     *     @type string $message Message or error information.
-     *     @type mixed  $data    The response data or null on failure.
-     * }
-    */
+     * @return array{status: bool, message: string, data: mixed}
+     */
     protected function handle(callable $callback): array
     {
         try {
@@ -57,19 +56,40 @@ class BankService
     }
 
     /**
-     * Retrieve a list of available banks from Paystack.
+     * Get a list of all supported banks and their properties.
      *
-     * @return array The response from Paystack API.
-    */
+     * @return array<string, mixed>
+     */
     public function list(): array
     {
         return $this->handle(fn () => $this->client->get('bank')->json());
     }
 
     /**
-     * Resolve a bank account number and bank code to retrieve account details.
+     * Gets a list of countries that Paystack currently supports.
      *
-     * Example payload:
+     * @return array<string, mixed>
+     */
+    public function listCountry(): array
+    {
+        return $this->handle(fn () => $this->client->get('country')->json());
+    }
+
+    /**
+     * Get a list of states for a country for address verification.
+     *
+     * @param int $countryCode The country code of the states to list. It is gotten after the charge request.
+     * @return array<string, mixed>
+    */
+    public function listState(int $countryCode): array
+    {
+        return $this->handle(fn () => $this->client->get("address_verification/states?country={$countryCode}")->json());
+    }
+
+    /**
+     * Confirm an account belongs to the right customer
+     *
+     * Example:
      * ```php
      * [
      *     'account_number' => '1234567890',
@@ -77,11 +97,11 @@ class BankService
      * ]
      * ```
      *
-     * @param array $data An associative array containing `account_number` and `bank_code`.
-     * @return array The response from Paystack API.
+     * @param array<string, mixed> $params Query parameter containing `account_number` and `bank_code`.
+     * @return array<string, mixed>
     */
-    public function resolveAccount(array $data): array
+    public function resolveAccount(array $params = []): array
     {
-        return $this->handle(fn () => $this->client->get('bank/resolve', $data)->json());
+        return $this->handle(fn () => $this->client->get('bank/resolve', $params)->json());
     }
 }

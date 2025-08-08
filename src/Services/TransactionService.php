@@ -1,5 +1,7 @@
 <?php
 
+// Paystack specific Documentation page website: https://paystack.com/docs/api/transaction/
+
 namespace Unicodeveloper\Paystack\Services;
 
 use Illuminate\Support\Facades\Request;
@@ -12,21 +14,21 @@ use Unicodeveloper\Paystack\Exceptions\PaystackRequestException;
  * Handles transaction-related operations with the Paystack API.
  *
  * @package Unicodeveloper\Paystack\Services
-*/
+ */
 class TransactionService
 {
     /**
      * Paystack HTTP client instance.
      *
      * @var \Unicodeveloper\Paystack\Client\PaystackClient
-    */
+     */
     protected PaystackClient $client;
 
     /**
      * TransactionService constructor.
      *
      * @param \Unicodeveloper\Paystack\Client\PaystackClient $client
-    */
+     */
     public function __construct(PaystackClient $client)
     {
         $this->client = $client;
@@ -35,17 +37,12 @@ class TransactionService
     /**
      * Handle exceptions gracefully and format the result.
      *
-     * @internal This method is not part of the public API and may change without notice.
      *
      * @internal This method is not part of the public API and may change without notice.
      *
      * @param callable $callback
-     * @return array {
-     *     @type bool   $status  Indicates success or failure.
-     *     @type string $message Descriptive message or error.
-     *     @type mixed  $data    The API response data or null on failure.
-     * }
-    */
+     * @return array{status: bool, message: string, data: mixed}
+     */
     protected function handle(callable $callback): array
     {
         try {
@@ -75,10 +72,10 @@ class TransactionService
      * ]
      * ```
      *
-     * @param array $payload Transaction initialization data.
-     * @return array Paystack response including authorization URL.
-    */
-    public function initialize(array $payload): array
+     * @param array<string, mixed> $payload Transaction initialization data.
+     * @return array<string, mixed>
+     */
+    public function initialize(array $payload = []): array
     {
         return $this->handle(fn () => $this->client->post('transaction/initialize', $payload)->json());
     }
@@ -87,8 +84,8 @@ class TransactionService
      * Verify a transaction by reference code.
      *
      * @param string $reference The transaction reference.
-     * @return array Paystack verification result.
-    */
+     * @return array<string, mixed>
+     */
     public function verify(string $reference): array
     {
         return $this->handle(fn () => $this->client->get("transaction/verify/{$reference}")->json());
@@ -97,23 +94,95 @@ class TransactionService
     /**
      * List transactions with pagination support.
      *
-     * @param int $perPage Number of results per page.
-     * @param int $page Current page number.
-     * @return array Paginated list of transactions.
-    */
-    public function list(int $perPage = 50, int $page = 1): array
+     * @param array<string, mixed> $params Optional query parameter
+     * @return array<string, mixed>
+     */
+    public function list(array $params = []): array
     {
-        return $this->handle(fn () => $this->client->get("transaction?perPage={$perPage}&page={$page}")->json());
+        return $this->handle(fn () => $this->client->get("transaction", $params)->json());
     }
 
     /**
      * Fetch a single transaction by its ID or reference.
      *
      * @param int|string $id Transaction ID or reference string.
-     * @return array Transaction details.
-    */
+     * @return array<string, mixed>
+     */
     public function fetch(int|string $id): array
     {
         return $this->handle(fn () => $this->client->get("transaction/{$id}")->json());
+    }
+
+    /**
+     * All authorizations marked as reusable can be charged with this endpoint whenever you need to receive payments
+     *
+     * Example:
+     * ```php
+     * [
+     *     "email" => "customer@email.com",
+     *      "amount" => "20000",
+     *      "authorization_code" => "AUTH_72btv547"
+     * ]
+     * ```
+     *
+     * @param array<string, mixed> $payload The body params.
+     * @return array<string, mixed>
+     */
+    public function chargeAuthorization(array $payload = []): array
+    {
+        return $this->handle(fn () => $this->client->post("transaction/charge_authorization", $payload)->json());
+    }
+
+    /**
+     * View the timeline of a transaction
+     *
+     * @param string $id_or_reference
+     * @return array<string, mixed>
+     */
+    public function viewTransactionTimeline(string $id_or_reference): array
+    {
+        return $this->handle(fn () => $this->client->get("transaction/timeline/{$id_or_reference}")->json());
+    }
+
+    /**
+     * Total amount received on your account
+     *
+     * @param array<string, mixed> $params Optional query params.
+     * @return array<string, mixed>
+     */
+    public function transactionTotals(array $params = []): array
+    {
+        return $this->handle(fn () => $this->client->get("transaction/totals", $params)->json());
+    }
+
+    /**
+     * Export a list of transactions carried out.
+     *
+     * @param array<string, mixed> $params Optional query params.
+     * @return array<string, mixed>
+     */
+    public function exportTotal(array $params = []): array
+    {
+        return $this->handle(fn () => $this->client->get("transaction/export", $params)->json());
+    }
+
+    /**
+     * Retrieve part of a payment from a customer
+     *
+     * Example payload:
+     * ```php
+     * [
+     *     "currency" => "NGN",
+     *      "amount" => "20000",
+     *      "email" => "customer@email.com"
+     * ]
+     * ```
+     *
+     * @param array<string, mixed> $payload
+     * @return array<string, mixed>
+     */
+    public function partialDebit(array $payload = []): array
+    {
+        return $this->handle(fn () => $this->client->post("transaction/partial_debit", $payload)->json());
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 /*
  * This file is part of the Laravel Paystack package.
  *
@@ -25,8 +27,9 @@ class PaystackServiceProvider extends ServiceProvider
 {
     /**
     * Publishes all the config file this package needs to function
+    * @return void
     */
-    public function boot()
+    public function boot(): void
     {
         $this->bootConfig();
         // $this->bootViews(); // TODO
@@ -41,7 +44,7 @@ class PaystackServiceProvider extends ServiceProvider
      *
      * @return void
     */
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(__DIR__ . '/../config/paystack.php', 'paystack');
 
@@ -68,9 +71,9 @@ class PaystackServiceProvider extends ServiceProvider
 
     /**
     * Get the services provided by the provider
-    * @return array
+    * @return array<int, class-string>
     */
-    public function provides()
+    public function provides(): array
     {
         return [
             PaystackClient::class,

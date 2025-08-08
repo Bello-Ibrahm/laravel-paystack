@@ -1,5 +1,7 @@
 <?php
 
+use Unicodeveloper\Paystack\Paystack;
+
 /**
  * Get the Paystack service instance.
  *
@@ -14,7 +16,7 @@
  * @return \Unicodeveloper\Paystack\Paystack
 */
 if (! function_exists("paystack")) {
-    function paystack()
+    function paystack(): Paystack
     {
         return app()->make('laravel-paystack');
     }
