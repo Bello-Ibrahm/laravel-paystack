@@ -63,4 +63,6 @@ tests/Feature/
 src/Exceptions/TransactionDashboardException.php
 src/TransRef.php
 tests/TestCaseBackup.php
+tests/Integration/auth_reference.json
+
 
