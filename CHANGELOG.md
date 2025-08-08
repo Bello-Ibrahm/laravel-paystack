@@ -22,7 +22,7 @@ The format is inspired by [Keep a Changelog](https://keepachangelog.com) and thi
 - Implemented `TransRef` helper for generating transaction references (`Paystack::transRef()`).
 - Wrote unit and integration tests for services using PHPUnit.
 - Added `setup.sh` for bootstrapping the package setup.
-- Added docblocks for all service classes and methods to improve developer experience.
+- Added PHPDoc blocks to all service classes and methods to enhance developer experience and IDE support.
 
 ### Changed
 - Refactored core `Paystack.php` class to follow SRP and delegate responsibilities to dedicated service classes.
