@@ -15,13 +15,13 @@
 To get the latest version of Laravel Paystack, simply require it
 
 ```bash
-composer require unicodeveloper/laravel-paystack
+composer require unicodeveloper/laravel-paystack:2.0.0
 ```
 
 Or add the following line to the require block of your `composer.json` file.
 
 ```
-"unicodeveloper/laravel-paystack": "1.0.*"
+"unicodeveloper/laravel-paystack": "2.0.*"
 ```
 
 You'll then need to run `composer install` or `composer update` to download it and have the autoloader updated.
@@ -71,25 +71,45 @@ return [
      * Public Key From Paystack Dashboard
      *
      */
-    'publicKey' => getenv('PAYSTACK_PUBLIC_KEY'),
+    'publicKey' => env('PAYSTACK_PUBLIC_KEY'),
 
     /**
      * Secret Key From Paystack Dashboard
      *
      */
-    'secretKey' => getenv('PAYSTACK_SECRET_KEY'),
+    'secretKey' => env('PAYSTACK_SECRET_KEY'),
 
     /**
      * Paystack Payment URL
      *
      */
-    'paymentUrl' => getenv('PAYSTACK_PAYMENT_URL'),
+    'paymentUrl' => env('PAYSTACK_PAYMENT_URL'),
 
     /**
      * Optional email address of the merchant
      *
      */
-    'merchantEmail' => getenv('MERCHANT_EMAIL'),
+    'merchantEmail' => env('MERCHANT_EMAIL'),
+
+    // Maximum retry attempts for HTTP client (default: 3)
+    'retry_attempts' => env('PAYSTACK_RETRY_ATTEMPTS', 3),
+
+    // Delay (ms) between retry attempts (default: 150)
+    'retry_delay' => env('PAYSTACK_RETRY_DELAY', 150),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Enable Package Routes - Feature
+    |--------------------------------------------------------------------------
+    |
+    | This option controls whether the Paystack package should automatically
+    | load its built-in web routes. You may disable this if you prefer
+    | to define your own routes or extend the functionality manually.
+    |
+    | Default: false
+    |
+    */
+    'enable_routes' => false,
 
 ];
 ```
@@ -134,46 +154,14 @@ Note: Make sure you have `/payment/callback` registered in Paystack Dashboard [h
 
 ![payment-callback](https://cloud.githubusercontent.com/assets/2946769/12746754/9bd383fc-c9a0-11e5-94f1-64433fc6a965.png)
 
-```php
-// Laravel 5.1.17 and above
-Route::post('/pay', 'PaymentController@redirectToGateway')->name('pay');
+## Route Example
+```
+Route::get('/payment', [App\Http\Controllers\PaymentController::class, 'index'])->name('payment.form');
+Route::post('/checkout', [App\Http\Controllers\PaymentController::class, 'redirectToGateway'])->name('checkout.process');
+Route::get('/payment/callback', [App\Http\Controllers\PaymentController::class, 'handleGatewayCallback'])->name('payment.callback');
 ```
 
-OR
-
-```php
-Route::post('/pay', [
-    'uses' => 'PaymentController@redirectToGateway',
-    'as' => 'pay'
-]);
-```
-OR
-
-```php
-// Laravel 8 & 9
-Route::post('/pay', [App\Http\Controllers\PaymentController::class, 'redirectToGateway'])->name('pay');
-```
-
-
-```php
-Route::get('/payment/callback', 'PaymentController@handleGatewayCallback');
-```
-
-OR
-
-```php
-// Laravel 5.0
-Route::get('payment/callback', [
-    'uses' => 'PaymentController@handleGatewayCallback'
-]);
-```
-
-OR
-
-```php
-// Laravel 8 & 9
-Route::get('/payment/callback', [App\Http\Controllers\PaymentController::class, 'handleGatewayCallback']);
-```
+## Controller Example:
 
 ```php
 <?php
@@ -181,42 +169,148 @@ Route::get('/payment/callback', [App\Http\Controllers\PaymentController::class, 
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Unicodeveloper\Paystack\Facades\Paystack;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Redirect;
-use Paystack;
-
+/**
+ * Class PaymentController
+ *
+ * Handles Paystack payment initialization, redirection, and callback verification.
+ *
+ * @package App\Http\Controllers
+ */
 class PaymentController extends Controller
 {
-
     /**
-     * Redirect the User to Paystack Payment Page
-     * @return Url
-     */
-    public function redirectToGateway()
+     * Display the payment form to the user.
+     *
+     * @return \Illuminate\View\View
+    */
+    public function index()
     {
-        try{
-            return Paystack::getAuthorizationUrl()->redirectNow();
-        }catch(\Exception $e) {
-            return Redirect::back()->withMessage(['msg'=>'The paystack token has expired. Please refresh the page and try again.', 'type'=>'error']);
-        }        
+        return view('payments.index');
     }
 
     /**
-     * Obtain Paystack payment information
-     * @return void
-     */
-    public function handleGatewayCallback()
+     * Initialize a Paystack transaction and redirect to the authorization URL.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+    */
+    public function redirectToGateway(Request $request)
     {
-        $paymentDetails = Paystack::getPaymentData();
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'amount' => 'required|numeric|min:100',
+            'description' => 'nullable|string',
+        ]);
 
-        dd($paymentDetails);
-        // Now you have the payment details,
-        // you can store the authorization_code in your db to allow for recurrent subscriptions
-        // you can then redirect or do whatever you want
+        $reference = Paystack::transRef();
+
+        $payload = [
+            'email' => $request->email,
+            'amount' => $request->amount * 100,
+            'reference' => $reference,
+            'callback_url' => route('payment.callback'),
+            'metadata' => [
+                'custom_fields' => [
+                    [
+                        'display_name' => 'Name',
+                        'variable_name' => 'name',
+                        'value' => $request->name
+                    ],
+                    [
+                        'display_name' => 'Description',
+                        'variable_name' => 'description',
+                        'value' => $request->description
+                    ]
+                ]
+            ]
+        ];
+
+        try {
+            $response = Paystack::transaction()->initialize($payload);
+            $transAuthURL = $response['data']['authorization_url']; 
+            
+            return redirect($transAuthURL);
+        } catch (\Exception $e) {
+            Log::error('Paystack Error', ['message' => $e->getMessage()]);
+            return back()->with('error', 'Failed to initiate payment.');
+        }
+    }
+
+    /**
+     * Handle the callback from Paystack after payment.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     */
+    public function handleGatewayCallback(Request $request)
+    {
+        $reference = $request->query('reference');
+
+        try {
+            $response = Paystack::transaction()->verify($reference);
+            $data = $response['data'];
+
+            // Here, you could store the payment record, send a receipt email, etc.
+            return view('payments.success', ['payment' => $data]);
+        } catch (\Exception $e) {
+            Log::error('Verification Error', ['message' => $e->getMessage()]);
+            return redirect('/payment')->with('error', 'Payment verification failed.');
+        }
     }
 }
+```
+## View example `views/payments/payment.blade.php`:
+
+```php
+@extends('layouts.app')
+
+@section('content')
+<div class="container mt-5">
+    <div class="card my-5">
+        <div class="card-header">
+            <h3 class="mb-4 text-center">Pay with Paystack</h3>
+        </div>
+
+        <div class="card-body">
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('checkout.process') }}">
+                @csrf
+
+                <div class="form-group mb-3">
+                    <label>Name</label>
+                    <input type="text" class="form-control" name="name" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Email</label>
+                    <input type="email" class="form-control" name="email" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Amount (NGN)</label>
+                    <input type="number" class="form-control" name="amount" min="100" required>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label>Description</label>
+                    <input type="text" class="form-control" name="description" value="Laravel Blog Premium" required>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Pay Now</button>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection
 ```
 
 ```php
@@ -237,197 +331,106 @@ $data = array(
         "orderID" => 23456,
     );
 
-return Paystack::getAuthorizationUrl($data)->redirectNow();
+$response = Paystack::transaction()->initialize($data);
 
+return redirect($response['data']['authorization_url']);
 ```
 
 Let me explain the fluent methods this package provides a bit here.
 ```php
 /**
- *  This fluent method does all the dirty work of sending a POST request with the form data
- *  to Paystack Api, then it gets the authorization Url and redirects the user to Paystack
- *  Payment Page. We've abstracted all of it, so you don't have to worry about that.
- *  Just eat your cookies while coding!
+ * Initialize a new transaction for a customer.
+ *
+ * @param array $data {
+ *     @type string $email         Customer's email address (required).
+ *     @type int    $amount        Amount in kobo (e.g. 5000 = ₦50.00) (required).
+ *     @type string $reference     Unique transaction reference (optional - auto-generated if omitted).
+ *     @type string $callback_url  URL to redirect to after payment (optional).
+ *     @type array  $metadata      Custom metadata including custom_fields (optional).
+ * }
+ * @return array Response from Paystack API.
  */
-Paystack::getAuthorizationUrl()->redirectNow();
+Paystack::transaction()->initialize(array $data);
 
 /**
- * Alternatively, use the helper.
+ * Verify the status of a transaction using its reference.
+ *
+ * @param string $ref Unique transaction reference to verify.
+ * @return array Response from Paystack API containing transaction details.
  */
-paystack()->getAuthorizationUrl()->redirectNow();
+Paystack::transaction()->verify(string $ref);
 
 /**
- * This fluent method does all the dirty work of verifying that the just concluded transaction was actually valid,
- * It verifies the transaction reference with Paystack Api and then grabs the data returned from Paystack.
- * In that data, we have a lot of good stuff, especially the `authorization_code` that you can save in your db
- * to allow for easy recurrent subscription.
+ * Fetch details of a single transaction by its ID or reference.
+ *
+ * @param string $id_or_ref Optional transaction ID or reference.
+ * @return array Response with transaction details.
  */
-Paystack::getPaymentData();
+Paystack::transaction()->fetch(string $id_or_ref);
 
 /**
- * Alternatively, use the helper.
+ * List all transactions for the authenticated Paystack account.
+ *
+ * @return array Paginated list of transactions.
  */
-paystack()->getPaymentData();
+Paystack::transaction()->list();
 
 /**
- * This method gets all the customers that have performed transactions on your platform with Paystack
- * @returns array
+ * Charge a customer using a saved authorization code.
+ *
+ * @param array $data {
+ *     @type string $authorization_code  The saved Paystack authorization code (required).
+ *     @type string $email               Customer's email (required).
+ *     @type int    $amount              Amount in kobo (required).
+ *     @type string $reference           Unique reference (optional).
+ * }
+ * @return array Response from Paystack API.
  */
-Paystack::getAllCustomers();
+Paystack::transaction()->chargeAuthorization(array $data);
 
 /**
- * Alternatively, use the helper.
+ * Create a new customer on Paystack.
+ *
+ * @param array $data {
+ *     @type string $email     Customer's email address (required).
+ *     @type string $first_name First name of the customer (optional).
+ *     @type string $last_name  Last name of the customer (optional).
+ *     @type string $phone      Customer's phone number (optional).
+ * }
+ * @return array Response with created customer details.
  */
-paystack()->getAllCustomers();
-
+Paystack::customer()->create(array $data);
 
 /**
- * This method gets all the plans that you have registered on Paystack
- * @returns array
+ * Fetch a customer's details using email or customer code.
+ *
+ * @param string $email_or_code Email address or customer code.
+ * @return array Customer details from Paystack API.
  */
-Paystack::getAllPlans();
+Paystack::customer()->fetch(string $email_or_code);
 
 /**
- * Alternatively, use the helper.
+ * List all customers on your Paystack account.
+ *
+ * @return array Paginated list of customers.
  */
-paystack()->getAllPlans();
-
+Paystack::customer()->list();
 
 /**
- * This method gets all the transactions that have occurred
- * @returns array
+ * Generate a unique transaction reference string.
+ *
+ * @return string Unique transaction reference.
  */
-Paystack::getAllTransactions();
+Paystack::transRef();
 
-/**
- * Alternatively, use the helper.
- */
-paystack()->getAllTransactions();
-
-/**
- * This method generates a unique super secure cryptographic hash token to use as transaction reference
- * @returns string
- */
-Paystack::genTranxRef();
-
-/**
- * Alternatively, use the helper.
- */
-paystack()->genTranxRef();
-
-
-/**
-* This method creates a subaccount to be used for split payments
-* @return array
-*/
-Paystack::createSubAccount();
-
-/**
- * Alternatively, use the helper.
- */
-paystack()->createSubAccount();
-
-
-/**
-* This method fetches the details of a subaccount
-* @return array
-*/
-Paystack::fetchSubAccount();
-
-/**
- * Alternatively, use the helper.
- */
-paystack()->fetchSubAccount();
-
-
-/**
-* This method lists the subaccounts associated with your paystack account
-* @return array
-*/
-Paystack::listSubAccounts();
-
-/**
- * Alternatively, use the helper.
- */
-paystack()->listSubAccounts();
-
-
-/**
-* This method Updates a subaccount to be used for split payments
-* @return array
-*/
-Paystack::updateSubAccount();
-
-/**
- * Alternatively, use the helper.
- */
-paystack()->updateSubAccount();
 ```
 
-A sample form will look like so:
-
-```php
-<?php
-// more details https://paystack.com/docs/payments/multi-split-payments/#dynamic-splits
-
-$split = [
-   "type" => "percentage",
-   "currency" => "KES",
-   "subaccounts" => [
-    [ "subaccount" => "ACCT_li4p6kte2dolodo", "share" => 10 ],
-    [ "subaccount" => "ACCT_li4p6kte2dolodo", "share" => 30 ],
-   ],
-   "bearer_type" => "all",
-   "main_account_share" => 70
-];
-?>
-```
-
-```html
-<form method="POST" action="{{ route('pay') }}" accept-charset="UTF-8" class="form-horizontal" role="form">
-    <div class="row" style="margin-bottom:40px;">
-        <div class="col-md-8 col-md-offset-2">
-            <p>
-                <div>
-                    Lagos Eyo Print Tee Shirt
-                    ₦ 2,950
-                </div>
-            </p>
-            <input type="hidden" name="email" value="otemuyiwa@gmail.com"> {{-- required --}}
-            <input type="hidden" name="orderID" value="345">
-            <input type="hidden" name="amount" value="800"> {{-- required in kobo --}}
-            <input type="hidden" name="quantity" value="3">
-            <input type="hidden" name="currency" value="NGN">
-            <input type="hidden" name="metadata" value="{{ json_encode($array = ['key_name' => 'value',]) }}" > {{-- For other necessary things you want to add to your payload. it is optional though --}}
-            <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}"> {{-- required --}}
-            
-            <input type="hidden" name="split_code" value="SPL_EgunGUnBeCareful"> {{-- to support transaction split. more details https://paystack.com/docs/payments/multi-split-payments/#using-transaction-splits-with-payments --}}
-            <input type="hidden" name="split" value="{{ json_encode($split) }}"> {{-- to support dynamic transaction split. More details https://paystack.com/docs/payments/multi-split-payments/#dynamic-splits --}}
-            {{ csrf_field() }} {{-- works only when using laravel 5.1, 5.2 --}}
-
-            <input type="hidden" name="_token" value="{{ csrf_token() }}"> {{-- employ this in place of csrf_field only in laravel 5.0 --}}
-
-            <p>
-                <button class="btn btn-success btn-lg btn-block" type="submit" value="Pay Now!">
-                    <i class="fa fa-plus-circle fa-lg"></i> Pay Now!
-                </button>
-            </p>
-        </div>
-    </div>
-</form>
-```
 
 When clicking the submit button the customer gets redirected to the Paystack site.
 
 So now we've redirected the customer to Paystack. The customer did some actions there (hopefully he or she paid the order) and now gets redirected back to our shop site.
 
 Paystack will redirect the customer to the url of the route that is specified in the Callback URL of the Web Hooks section on Paystack dashboard.
-
-We must validate if the redirect to our site is a valid request (we don't want imposters to wrongfully place non-paid order).
-
-In the controller that handles the request coming from the payment provider, we have
-
-`Paystack::getPaymentData()` - This function calls the verification methods and ensure it is a valid transaction else it throws an exception.
 
 You can test with these details
 
