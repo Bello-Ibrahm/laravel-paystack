@@ -1,12 +1,41 @@
 # Laravel Paystack SDK
 
-> A Laravel SDK for integrating with the [Paystack API](https://paystack.com/docs/api/), providing a clean and expressive way to interact with transactions, customers, plans, subscriptions, and more.
-
->  📦 Supports Laravel 9, 10, 11, and 12. Built with PHP 8.2+ features.
+A simple, expressive Laravel wrapper around the Paystack API.
 
 ---
 
-## 🚀 Features
+## Setup
+
+After cloning the repo, run:
+
+```
+./setup.sh
+```
+
+#  Composer Scripts
+To run unit and integration tests (requires PAYSTACK_SECRET_KEY):
+```
+composer test
+```
+
+View unused dependencies:
+```
+composer unused
+```
+
+Automatically fix coding style issues:
+```
+composer php-fix
+```
+
+Run static analysis:
+```
+comoposer analyse
+```
+
+---
+
+## Features
 
 - Simple Laravel-style service and facade structure
 - Fully modular service classes (e.g., `TransactionService`, `CustomerService`, etc.)
@@ -14,12 +43,12 @@
 - Strong type declarations and IDE-friendly docblocks
 - Auto-generated transaction references with `transRef()`
 - Built-in error handling and retry logic
-- PSR-4 compliant and fully testable (unit & integration)
+- PSR-4 compliant and fully testable
 - Built-in retry logic (configurable with PAYSTACK_RETRY_ATTEMPTS and PAYSTACK_RETRY_DELAY)
 
 ---
 
-## 📦 Installation
+## Installation
 
 Install via Composer:
 
@@ -30,7 +59,7 @@ composer require unicodeveloper/laravel-paystack
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 Publish the config file:
 ```bash
 php artisan vendor:publish --provider="Unicodeveloper\Paystack\PaystackServiceProvider"
@@ -49,7 +78,7 @@ PAYSTACK_RETRY_DELAY=150
 ```
 ---
 
-## 🧪 Usage
+## Usage
 ### Transaction
 ```
 use Paystack;
@@ -192,18 +221,20 @@ Route::get('/payment/callback', [App\Http\Controllers\PaymentController::class, 
 | ---------------- | ------------------------------- |
 | `transaction()`  | Handle payment transactions     |
 | `customer()`     | Manage customer records         |
-| `plan()`         | Create and manage payment plans |
+| `plan()`         | Create and manage plans         |
 | `subscription()` | Handle recurring subscriptions  |
-| `transfer()`     | Initiate and manage transfers   |
 | `bank()`         | Retrieve bank lists             |
+| `page()`         | Manage payment pages.           |
+| `subAccount()`   | Mangage subaccounts             |
 
 ---
-## ✅ Testing
+
+## Testing
 Run tests:
 ```
 composer test
 ```
-> Integration tests assume PAYSTACK_SECRET_KEY is set in .env.testing.
+> Integration require PAYSTACK_SECRET_KEY in .env.testing.
 
 ---
 
